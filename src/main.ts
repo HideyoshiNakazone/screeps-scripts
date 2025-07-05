@@ -41,4 +41,5 @@ declare global {
 // });
 export const loop = () => {
   console.log(`Current game tick is ${Game.time}`);
+  console.log(`Current game CPU is ${Game.cpu.getUsed()}`);
 };

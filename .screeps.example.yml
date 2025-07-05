@@ -1,0 +1,16 @@
+servers:
+  main:
+    host: screeps.com
+    secure: true
+    token: {TOKEN}
+  ptr:
+    host: screeps.com
+    secure: true
+    token: {TOKEN}
+    ptr: true
+
+    
+configs:
+  screepsconsole:
+    maxHistory: 20000
+    maxScroll: 20000

@@ -3,8 +3,10 @@
   "version": "3.0.0",
   "description": "",
   "scripts": {
-    "format": "prettier --config .prettierrc 'src/**/*.ts' --write && eslint --fix src/",
-    "build": "node esbuild.config.mjs"
+    "build": "node esbuild.config.mjs",
+    "push:main": "npm run build && screeps-api --server main upload dist/*",
+    "push:sim": "npm run build && screeps-api --server main upload  --branch sim dist/*",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write && eslint --fix src/"
   },
   "repository": {
     "type": "git",
@@ -42,6 +44,7 @@
     "lodash": "^4.17.21",
     "mocha": "^11.7.1",
     "prettier": "^3.6.2",
+    "screeps-api": "^1.7.2",
     "shelljs": "^0.10.0",
     "sinon": "^21.0.0",
     "sinon-chai": "^4.0.0",
