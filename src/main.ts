@@ -40,6 +40,7 @@ declare global {
 //   }
 // });
 export const loop = () => {
-  console.log(`Current game tick is ${Game.time}`);
-  console.log(`Current game CPU is ${Game.cpu.getUsed()}`);
+  for (const spawn of Object.values(Game.spawns)) {
+    console.log(`Spawn ${spawn.name} in room ${spawn.room.name} is ready.`);
+  }
 };
