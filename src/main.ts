@@ -1,3 +1,5 @@
+import SpawnHandler from "spawnHandler";
+
 declare global {
   /*
     Example types, expand on these or remove them and add your own.
@@ -41,6 +43,9 @@ declare global {
 // });
 export const loop = () => {
   for (const spawn of Object.values(Game.spawns)) {
-    console.log(`Spawn ${spawn.name} in room ${spawn.room.name} is ready.`);
+    // Create a handler for each spawn
+    const spawnHandler = new SpawnHandler(spawn);
+    // Run the handler
+    spawnHandler.run();
   }
 };
