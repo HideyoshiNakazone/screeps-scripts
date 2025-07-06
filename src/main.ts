@@ -48,13 +48,23 @@ export const loop = () => {
     console.log(`Current game tick is ${Game.time}`);
 
     // Check if spawn still exists
+    const activeSpawns = Object.keys(Game.spawns);
 
-    for (const spawn of Object.values(Game.spawns)) {
+    for (const spawnName in Object.keys(Memory.spawnHandlers)) {
+        if (spawnName in Game.spawns) {
+            console.log(`Spawn ${spawnName} exists, continuing to run its handler.`);
+            continue;
+        }
+        console.log(`Spawn ${spawnName} does not exist, deleting its handler.`);
+        delete Memory.spawnHandlers[spawnName];
+    }
+
+    for (const spawnName of activeSpawns) {
         // Create a handler for each spawn
-        if (spawn.name in Memory.spawnHandlers) {
-            Memory.spawnHandlers[spawn.name] = new SpawnHandler(spawn);
+        if (spawnName in Memory.spawnHandlers) {
+            Memory.spawnHandlers[spawnName] = new SpawnHandler(Game.spawns[spawnName]);
         }
         // Run the handler
-        Memory.spawnHandlers[spawn.name].run();
+        Memory.spawnHandlers[spawnName].run();
     }
 };

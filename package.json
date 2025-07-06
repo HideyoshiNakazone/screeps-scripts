@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "push:main": "npm run build && screeps-api --server main upload dist/*.js dist/**/*.js",
-    "push:sim": "npm run build && screeps-api --server main upload  --branch sim dist/*.js dist/**/*.js",
+    "push:main": "npm run build && screeps-api --server main upload dist/*.js",
+    "push:sim": "npm run build && screeps-api --server main upload  --branch sim dist/*.js",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write && eslint --fix src/"
   },
   "repository": {
