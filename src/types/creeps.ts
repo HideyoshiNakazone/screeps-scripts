@@ -2,8 +2,7 @@ export type RoleDefinition = {
     name: string;
     body: BodyPartConstant[];
     priority: number;
-}
-
+};
 
 export const CreepRoles = {
     harvester: {
@@ -23,9 +22,6 @@ export const CreepRoles = {
     }
 } satisfies Record<string, RoleDefinition>;
 
-
 export type CreepRole = keyof typeof CreepRoles;
-
-
 
 export type CreepRequisition = Record<CreepRole, number>;

@@ -1,7 +1,5 @@
 import { CreepRequisition } from "./creeps";
 
-
-
 /**
  * Configuration for the game, defining limits and minimum requirements for creeps.
  * Used to manage the overall game state and ensure proper role distribution.
@@ -16,7 +14,6 @@ export type GameConfig = {
      */
     minCreepsPerRole: CreepRequisition;
 };
-
 
 /**
  * Default game configuration with maximum creeps and minimum creeps per role.
