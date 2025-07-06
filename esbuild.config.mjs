@@ -11,4 +11,5 @@ build({
   sourcemap: true,
   logLevel: 'info',
   minify: false,
+  keepNames: true, // optional: keeps function/class names
 }).catch(() => process.exit(1));
