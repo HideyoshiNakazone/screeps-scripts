@@ -9,4 +9,5 @@ build({
   outdir: 'dist',
   sourcemap: true,
   logLevel: 'info',
+  minify: false,
 }).catch(() => process.exit(1));
