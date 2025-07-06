@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "lib": ["es2018", "dom"],
+    "target": "ES6",
+    "lib": ["ES2015", "DOM"],
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",

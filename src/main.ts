@@ -1,4 +1,5 @@
 import SpawnHandler from "spawnHandler";
+import SpawnStorage from "spawnStorage";
 
 declare global {
     /*
@@ -13,7 +14,7 @@ declare global {
     interface Memory {
         uuid: number;
         log: any;
-        spawnHandlers: { [name: string]: SpawnHandler };
+        spawnHandlers: { [name: string]: string };
     }
 
     interface CreepMemory {
@@ -30,41 +31,24 @@ declare global {
     }
 }
 
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
-// export const loop = ErrorMapper.wrapLoop(() => {
-//   console.log(`Current game tick is ${Game.time}`);
 
-//   // Automatically delete memory of missing creeps
-//   for (const name in Memory.creeps) {
-//     if (!(name in Game.creeps)) {
-//       delete Memory.creeps[name];
-//     }
-//   }
-// });
 export const loop = () => {
+    const spawnStorage = new SpawnStorage();
     Memory.spawnHandlers = Memory.spawnHandlers || {};
-
-    console.log(`Current game tick is ${Game.time}`);
 
     // Check if spawn still exists
     const activeSpawns = Object.keys(Game.spawns);
 
-    for (const spawnName in Object.keys(Memory.spawnHandlers)) {
-        if (spawnName in Game.spawns) {
-            console.log(`Spawn ${spawnName} exists, continuing to run its handler.`);
-            continue;
-        }
-        console.log(`Spawn ${spawnName} does not exist, deleting its handler.`);
-        delete Memory.spawnHandlers[spawnName];
-    }
+    spawnStorage.clearDeadHandlers(activeSpawns);
 
     for (const spawnName of activeSpawns) {
         // Create a handler for each spawn
-        if (spawnName in Memory.spawnHandlers) {
-            Memory.spawnHandlers[spawnName] = new SpawnHandler(Game.spawns[spawnName]);
+        var currentHandler = spawnStorage.getHandler(spawnName);
+        if (!currentHandler) {
+            currentHandler = spawnStorage.addHandler(spawnName, new SpawnHandler(Game.spawns[spawnName]));
         }
+
         // Run the handler
-        Memory.spawnHandlers[spawnName].run();
+        currentHandler.run();
     }
 };

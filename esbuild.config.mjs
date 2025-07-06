@@ -3,8 +3,9 @@ import { build } from 'esbuild';
 build({
   entryPoints: ['src/main.ts'],
   bundle: true,
-  target: 'es2018', // Screeps supports ES2018 well
+  target: 'es6', // Screeps supports ES2018 well
   platform: 'node',
+  tsconfig: 'tsconfig.json',
   format: 'cjs',
   outdir: 'dist',
   sourcemap: true,
