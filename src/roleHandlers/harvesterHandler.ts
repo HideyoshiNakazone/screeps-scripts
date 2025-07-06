@@ -1,12 +1,10 @@
-import { CreepRole } from "types/creeps";
-import { registerRoleHandler, RoleHandler } from "./roleHandler.interface";
+import { RoleHandler } from "./roleHandler.interface";
 
 
 
-class HarvesterHandler implements RoleHandler {
-    public readonly mappedRole: CreepRole = "harvester";
-
-    public run(creep: Creep): void {
+class HarvesterHandler extends RoleHandler {
+    public static run(creep: Creep): void {
+        console.log(`Running HarvesterHandler for creep: ${creep.name}`);
         if (creep.store.getFreeCapacity() > 0) {
             const sources = creep.room.find(FIND_SOURCES);
             if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -22,7 +20,6 @@ class HarvesterHandler implements RoleHandler {
 }
 
 
-registerRoleHandler("harvester", HarvesterHandler);
 
 
 

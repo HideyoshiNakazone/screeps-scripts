@@ -5,23 +5,23 @@ import { get_role_const as get_role_cost } from "utils/funcs/get_role_const";
 class SpawnHandler {
     constructor(private spawn: StructureSpawn) {}
 
+    public get spawnName(): string {
+        return this.spawn.name;
+    }
+
     public run(): void {
         this.validateSpawnState();
 
-            for(var name in Game.creeps) {
-                var creep = Game.creeps[name];
+            for(const name in Game.creeps) {
+                const creep = Game.creeps[name];
 
-                if(creep.store.getFreeCapacity() > 0) {
-                    var sources = creep.room.find(FIND_SOURCES);
-                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(sources[0]);
-                    }
+                const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
+                if (!roleDefinition) {
+                    console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
+                    continue;
                 }
-                else {
-                    if(creep.transfer(Game.spawns['Spawn1'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(Game.spawns['Spawn1']);
-                    }
-                }
+
+                roleDefinition.handler.run(creep);
             }
     }
 
@@ -87,6 +87,10 @@ class SpawnHandler {
             }
             const roleType = role as CreepRole;
             requisition[roleType] = DEFAULT_GAME_CONFIG.minCreepsPerRole[roleType] - (creepCounts[role] || 0);
+
+            if (requisition[roleType] < 0) {
+                requisition[roleType] = 0; // Ensure we don't have negative requisitions
+            }
         }
 
         return requisition;

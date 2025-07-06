@@ -1,5 +1,4 @@
 import SpawnHandler from "spawnHandler";
-import SpawnStorage from "spawnStorage";
 
 declare global {
     /*
@@ -33,22 +32,8 @@ declare global {
 
 
 export const loop = () => {
-    const spawnStorage = new SpawnStorage();
-    Memory.spawnHandlers = Memory.spawnHandlers || {};
-
-    // Check if spawn still exists
-    const activeSpawns = Object.keys(Game.spawns);
-
-    spawnStorage.clearDeadHandlers(activeSpawns);
-
-    for (const spawnName of activeSpawns) {
-        // Create a handler for each spawn
-        var currentHandler = spawnStorage.getHandler(spawnName);
-        if (!currentHandler) {
-            currentHandler = spawnStorage.addHandler(spawnName, new SpawnHandler(Game.spawns[spawnName]));
-        }
-
+    for (const spawnName of Object.keys(Game.spawns)) {
         // Run the handler
-        currentHandler.run();
+        new SpawnHandler(Game.spawns[spawnName]).run();
     }
 };
