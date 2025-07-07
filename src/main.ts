@@ -1,3 +1,5 @@
+import { CreepDestination } from "types/creeps";
+import { SourcePositionMatrix, SourceSpotStatus } from "./types/source";
 import SpawnHandler from "spawnHandler";
 
 declare global {
@@ -11,8 +13,8 @@ declare global {
   */
     interface SourceState {
         id: string;
+        spots: SourcePositionMatrix;
         pos: RoomPosition;
-        maxHarvesters: number|null;
         currentHarvesters: number;
     }
 
@@ -30,7 +32,9 @@ declare global {
     interface CreepMemory {
         role: string;
         room: string;
+        spawnId: string;
         working: boolean;
+        destination?: CreepDestination;
     }
 
     // Syntax for adding proprties to `global` (ex "global.log")

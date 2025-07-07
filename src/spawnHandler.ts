@@ -1,5 +1,7 @@
 import { CreepRequisition, CreepRole, CreepRoles, RoleDefinition } from "types/creeps";
 import { DEFAULT_GAME_CONFIG } from "types/gameConfig";
+import { createSourcePositionMatrix, forEachMatrixSpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
+import { checkPositionWalkable } from "utils/funcs/check_position";
 import { get_role_const as get_role_cost } from "utils/funcs/get_role_const";
 
 class SpawnHandler {
@@ -12,17 +14,17 @@ class SpawnHandler {
     public run(state: GameState): GameState {
         this.updateSpawnState(state);
 
-        for(const name in Game.creeps) {
-            const creep = Game.creeps[name];
+        // for(const name in Game.creeps) {
+        //     const creep = Game.creeps[name];
 
-            const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
-            if (!roleDefinition) {
-                console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
-                continue;
-            }
+        //     const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
+        //     if (!roleDefinition) {
+        //         console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
+        //         continue;
+        //     }
 
-            state = roleDefinition.handler.run(creep, state);
-        }
+        //     state = roleDefinition.handler.run(creep, state);
+        // }
 
         this.validateSpawnState();
 
@@ -40,9 +42,21 @@ class SpawnHandler {
                 state.sourcesStates[sourceId] = {
                     "id": sourceId,
                     "pos": source.pos,
-                    "maxHarvesters": null,
+                    "spots": createSourcePositionMatrix(),
                     "currentHarvesters": 0
                 };
+                forEachMatrixSpot(state.sourcesStates[sourceId].spots, (delta, status) => {
+                    if (status !== SourceSpotStatus.UNKNOWN) {
+                        return; // Skip known spots
+                    }
+                    const pos = getPositionWithDelta(source.pos, delta);
+                    if (checkPositionWalkable(pos)) {
+                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.EMPTY);
+                    } else {
+                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.INVALID);
+                    }
+                })
+
             }
         }
     }
@@ -78,6 +92,7 @@ class SpawnHandler {
                 memory: {
                     role: role.name,
                     room: this.spawn.room.name,
+                    spawnId: this.spawn.id,
                     working: false
                 }
             });

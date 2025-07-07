@@ -1,4 +1,5 @@
 import { HarvesterHandler, RoleHandler } from "roleHandlers";
+import { PositionDelta } from "./source";
 
 export type RoleDefinition = {
     name: string;
@@ -31,3 +32,21 @@ export const CreepRoles = {
 export type CreepRole = keyof typeof CreepRoles;
 
 export type CreepRequisition = Record<CreepRole, number>;
+
+
+
+
+export type SpawnDestination = {
+    id: string; // ID of the spawn
+    type: "spawn";
+}
+
+export type SourceDestination = {
+    id: string; // ID of the source
+    type: "source";
+    sourceSpot: PositionDelta; // Position delta for the source spot
+}
+
+
+export type CreepDestination = SpawnDestination | SourceDestination;
+
