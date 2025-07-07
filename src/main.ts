@@ -9,11 +9,22 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
   */
+    interface SourceState {
+        id: string;
+        pos: RoomPosition;
+        maxHarvesters: number|null;
+        currentHarvesters: number;
+    }
+
+    interface GameState {
+        sourcesStates: { [sourceId: string]: SourceState };
+    }
+
     // Memory extension samples
     interface Memory {
         uuid: number;
         log: any;
-        spawnHandlers: { [name: string]: string };
+        spawnStates: { [name: string]: GameState };
     }
 
     interface CreepMemory {
@@ -32,8 +43,13 @@ declare global {
 
 
 export const loop = () => {
+    Memory.spawnStates = Memory.spawnStates || {};
+
     for (const spawnName of Object.keys(Game.spawns)) {
-        // Run the handler
-        new SpawnHandler(Game.spawns[spawnName]).run();
+        const spawnState = Memory.spawnStates[spawnName] || {};
+
+        const spawnHandler = new SpawnHandler(Game.spawns[spawnName]);
+
+        Memory.spawnStates[spawnName] = spawnHandler.run(spawnState);
     }
 };

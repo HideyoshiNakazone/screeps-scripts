@@ -9,20 +9,42 @@ class SpawnHandler {
         return this.spawn.name;
     }
 
-    public run(): void {
+    public run(state: GameState): GameState {
+        this.updateSpawnState(state);
+
+        for(const name in Game.creeps) {
+            const creep = Game.creeps[name];
+
+            const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
+            if (!roleDefinition) {
+                console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
+                continue;
+            }
+
+            state = roleDefinition.handler.run(creep, state);
+        }
+
         this.validateSpawnState();
 
-            for(const name in Game.creeps) {
-                const creep = Game.creeps[name];
+        return state;
+    }
 
-                const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
-                if (!roleDefinition) {
-                    console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
-                    continue;
-                }
-
-                roleDefinition.handler.run(creep);
+    private updateSpawnState(state: GameState) {
+        const sources = this.spawn.room.find(FIND_SOURCES);
+        for (const source of sources) {
+            if (!state.sourcesStates) {
+                state.sourcesStates = {};
             }
+            const sourceId = source.id.toString();
+            if (!state.sourcesStates[sourceId]) {
+                state.sourcesStates[sourceId] = {
+                    "id": sourceId,
+                    "pos": source.pos,
+                    "maxHarvesters": null,
+                    "currentHarvesters": 0
+                };
+            }
+        }
     }
 
     private validateSpawnState() {

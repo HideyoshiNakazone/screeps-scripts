@@ -1,3 +1,3 @@
 export abstract class RoleHandler {
-    static run(creep: Creep): void {};
+    static run(creep: Creep, state: GameState): GameState {};
 }
