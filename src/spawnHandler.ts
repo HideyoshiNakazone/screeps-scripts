@@ -14,17 +14,17 @@ class SpawnHandler {
     public run(state: GameState): GameState {
         this.updateSpawnState(state);
 
-        // for(const name in Game.creeps) {
-        //     const creep = Game.creeps[name];
+        for(const name in Game.creeps) {
+            const creep = Game.creeps[name];
 
-        //     const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
-        //     if (!roleDefinition) {
-        //         console.warn(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
-        //         continue;
-        //     }
+            const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
+            if (!roleDefinition) {
+                console.log(`Creep ${creep.name} has an unknown role: ${creep.memory.role}`);
+                continue;
+            }
 
-        //     state = roleDefinition.handler.run(creep, state);
-        // }
+            state = roleDefinition.handler.run(creep, state);
+        }
 
         this.validateSpawnState();
 
@@ -63,19 +63,19 @@ class SpawnHandler {
 
     private validateSpawnState() {
         if (this.spawn.spawning) {
-            console.log(`Spawn ${this.spawn.name} is currently spawning a creep.`);
+            // console.log(`Spawn ${this.spawn.name} is currently spawning a creep.`);
             return;
         }
 
         const creepRequisition = this.checksNeedsCreeps();
         if (Object.values(creepRequisition).every(count => count <= 0)) {
-            console.log(`Spawn ${this.spawn.name} has no creep needs.`);
+            // console.log(`Spawn ${this.spawn.name} has no creep needs.`);
             return;
         }
 
         const totalCreeps = Object.values(Game.creeps).length;
         if (totalCreeps >= DEFAULT_GAME_CONFIG.maxCreeps) {
-            console.log(`Spawn ${this.spawn.name} cannot spawn more creeps, limit reached.`);
+            // console.log(`Spawn ${this.spawn.name} cannot spawn more creeps, limit reached.`);
             return;
         }
 
@@ -83,7 +83,7 @@ class SpawnHandler {
 
         for (const role of rolesToSpawn) {
             if (this.spawn.store[RESOURCE_ENERGY] < get_role_cost(role)) {
-                console.log(`Spawn ${this.spawn.name} does not have enough energy to spawn a ${role.name}.`);
+                // console.log(`Spawn ${this.spawn.name} does not have enough energy to spawn a ${role.name}.`);
                 continue;
             }
 
@@ -119,7 +119,7 @@ class SpawnHandler {
         };
         for (const role in DEFAULT_GAME_CONFIG.minCreepsPerRole) {
             if (!(role in CreepRoles)) {
-                console.warn(`Unknown creep role: ${role}`);
+                console.log(`Unknown creep role: ${role}`);
                 continue;
             }
             const roleType = role as CreepRole;

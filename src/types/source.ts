@@ -34,7 +34,7 @@ export const createSourcePositionMatrix = () : SourcePositionMatrix => {
 
 
 export const getNextEmptySpot = (matrix: SourcePositionMatrix): PositionDelta | null => {
-    const index = matrix.findIndex( status => status === SourceSpotStatus.EMPTY || status === SourceSpotStatus.UNKNOWN);
+    const index = matrix.findIndex( status => status === SourceSpotStatus.EMPTY);
 
     if (index === -1) {
         return null; // No empty spot found
