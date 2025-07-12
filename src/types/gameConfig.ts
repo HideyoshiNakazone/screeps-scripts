@@ -22,9 +22,9 @@ export type GameConfig = {
  * @type {GameConfig}
  */
 export const DEFAULT_GAME_CONFIG: GameConfig = {
-    maxCreeps: 7,
+    maxCreeps: 5,
     minCreepsPerRole: {
-        harvester: 7,
+        harvester: 5,
         upgrader: 0,
         builder: 0
     }

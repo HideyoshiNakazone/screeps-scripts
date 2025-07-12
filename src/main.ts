@@ -15,11 +15,11 @@ declare global {
         id: string;
         spots: SourcePositionMatrix;
         pos: RoomPosition;
-        currentHarvesters: number;
     }
 
     interface GameState {
         sourcesStates: { [sourceId: string]: SourceState };
+        maxHarvesters: number; // Maximum number of harvesters allowed in the game
     }
 
     // Memory extension samples
@@ -35,6 +35,7 @@ declare global {
         spawnId: string;
         working: boolean;
         destination?: CreepDestination;
+        previousDestination?: CreepDestination;
     }
 
     // Syntax for adding proprties to `global` (ex "global.log")

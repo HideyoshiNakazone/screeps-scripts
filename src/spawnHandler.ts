@@ -33,17 +33,18 @@ class SpawnHandler {
 
     private updateSpawnState(state: GameState) {
         const sources = this.spawn.room.find(FIND_SOURCES);
+        if (!state.sourcesStates) {
+            state.sourcesStates = {};
+            state.maxHarvesters = 0
+        }
         for (const source of sources) {
-            if (!state.sourcesStates) {
-                state.sourcesStates = {};
-            }
             const sourceId = source.id.toString();
+
             if (!state.sourcesStates[sourceId]) {
                 state.sourcesStates[sourceId] = {
                     "id": sourceId,
                     "pos": source.pos,
                     "spots": createSourcePositionMatrix(),
-                    "currentHarvesters": 0
                 };
                 forEachMatrixSpot(state.sourcesStates[sourceId].spots, (delta, status) => {
                     if (status !== SourceSpotStatus.UNKNOWN) {
@@ -52,11 +53,11 @@ class SpawnHandler {
                     const pos = getPositionWithDelta(source.pos, delta);
                     if (checkPositionWalkable(pos)) {
                         setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.EMPTY);
+                        state.maxHarvesters = state.maxHarvesters + 1;
                     } else {
                         setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.INVALID);
                     }
                 })
-
             }
         }
     }

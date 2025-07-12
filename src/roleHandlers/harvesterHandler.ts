@@ -33,7 +33,7 @@ class HarvesterHandler extends RoleHandler {
             const sourceState = state.sourcesStates[source.id];
             const emptySpot = getNextEmptySpot(sourceState.spots);
 
-            if (!emptySpot) {
+            if (emptySpot === null) {
                 continue; // No empty spots available, skip to next source
             }
 
@@ -47,7 +47,6 @@ class HarvesterHandler extends RoleHandler {
                 type: "source",
                 sourceSpot: emptySpot
             };
-            console.log(`Source ${creep.memory.destination.id} - `, state.sourcesStates[creep.memory.destination.id].spots)
             return
         }
 
@@ -62,12 +61,7 @@ class HarvesterHandler extends RoleHandler {
         }
 
         if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-            setSpotStatus(
-                state.sourcesStates[creep.memory.destination.id].spots,
-                creep.memory.destination.sourceSpot,
-                SourceSpotStatus.EMPTY
-            );
-            console.log(`Source ${creep.memory.destination.id} - `, state.sourcesStates[creep.memory.destination.id].spots)
+            creep.memory.previousDestination = creep.memory.destination;
             creep.memory.destination = {
                 id: creep.memory.spawnId,
                 type: "spawn"
@@ -76,7 +70,7 @@ class HarvesterHandler extends RoleHandler {
         }
 
         const source = getSourceById(creep.memory.destination.id);
-        if (!source) {
+        if (source === null) {
             console.log(`Source not found for creep: ${creep.name}`);
             return;
         }
@@ -85,12 +79,20 @@ class HarvesterHandler extends RoleHandler {
             const sourceSpotPosition = getPositionWithDelta(
                 source.pos, creep.memory.destination.sourceSpot
             )
-            creep.moveTo(sourceSpotPosition, { reusePath: true, ignoreCreeps: true });
+            creep.moveTo(sourceSpotPosition, { reusePath: 0, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
         }
     }
 
     private static onSpawnDestination(creep: Creep, state: GameState) {
-        if (!creep.memory.destination) {
+        if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
+            setSpotStatus(
+                state.sourcesStates[creep.memory.previousDestination.id].spots,
+                creep.memory.previousDestination.sourceSpot,
+                SourceSpotStatus.EMPTY
+            );
+            delete creep.memory.previousDestination; // Clear previous destination if it exists
+        }
+        if (creep.memory.destination === undefined) {
             creep.memory.destination = {
                 id: creep.memory.spawnId,
                 type: "spawn"
@@ -109,7 +111,7 @@ class HarvesterHandler extends RoleHandler {
         }
 
         if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn, { reusePath: true, ignoreCreeps: true });
+            creep.moveTo(spawn, { reusePath: 0, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
         }
     }
 
@@ -119,11 +121,9 @@ class HarvesterHandler extends RoleHandler {
         const sources = Object.keys(state.sourcesStates)
             .map(sourceId => getSourceById(sourceId))
             .filter(source => source !== null)
-            .sort((a, b) => Math.abs(creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b)))
+            .sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b));
 
-        // console.log(`Creep ${creep.name} found ${sources.length} sources.`);
-
-        return sources;
+        return sources as Source[];
     }
 }
 

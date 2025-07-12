@@ -12,68 +12,70 @@ export type SourceSpotStatus = (typeof SourceSpotStatus)[keyof typeof SourceSpot
 
 export type PositionDeltaValue = -1 | 0 | 1;
 
-export type PositionDelta = {
-    x: PositionDeltaValue;
-    y: PositionDeltaValue;
-}
+export type PositionDelta = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-export type SourcePositionMatrix = [
-    SourceSpotStatus, SourceSpotStatus, SourceSpotStatus,
-    SourceSpotStatus, SourceSpotStatus, SourceSpotStatus,
-    SourceSpotStatus, SourceSpotStatus, SourceSpotStatus
-]
-
-
-export const createSourcePositionMatrix = () : SourcePositionMatrix => {
-    return [
-        SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN,
-        SourceSpotStatus.UNKNOWN, SourceSpotStatus.CENTER, SourceSpotStatus.UNKNOWN,
-        SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN
+export type SourcePositionMatrix = {
+    locked: boolean;
+    data: [
+        SourceSpotStatus, SourceSpotStatus, SourceSpotStatus,
+        SourceSpotStatus, SourceSpotStatus, SourceSpotStatus,
+        SourceSpotStatus, SourceSpotStatus, SourceSpotStatus
     ];
 }
 
 
+type MatrixPoint = {
+    x: PositionDeltaValue;
+    y: PositionDeltaValue;
+}
+
+
+const indexToMatrixPoint = (index: number): MatrixPoint => {
+    // where the 0,0 point is the center of the matrix and -1, -1 is the top-left corner
+    const x = ((index % 3) - 1) as PositionDeltaValue; // Convert index to x coordinate (-1, 0, 1)
+    const y = (Math.floor(index / 3) - 1) as PositionDeltaValue; // Convert index to y coordinate (-1, 0, 1)
+    return { x, y };
+}
+
+export const createSourcePositionMatrix = () : SourcePositionMatrix => {
+    return {
+        locked: false,
+        data: [
+            SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN,
+            SourceSpotStatus.UNKNOWN, SourceSpotStatus.CENTER, SourceSpotStatus.UNKNOWN,
+            SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN, SourceSpotStatus.UNKNOWN
+        ]
+    };
+}
+
+
 export const getNextEmptySpot = (matrix: SourcePositionMatrix): PositionDelta | null => {
-    const index = matrix.findIndex( status => status === SourceSpotStatus.EMPTY);
+    const index = matrix.data.findIndex( status => status === SourceSpotStatus.EMPTY);
 
     if (index === -1) {
         return null; // No empty spot found
     }
 
-    return {
-        x: (index % 3 - 1) as PositionDeltaValue, // Convert index to x delta (-1, 0, 1)
-        y: (Math.floor(index / 3) - 1) as PositionDeltaValue // Convert index to y delta (-1, 0, 1)
-    };
+    return index as PositionDelta; // Convert index to PositionDelta
 };
 
 
 export const setSpotStatus = (matrix: SourcePositionMatrix, delta: PositionDelta, status: SourceSpotStatus): void => {
-    const x = delta.x + 1; // Convert to index (0, 1, 2)
-    const y = delta.y + 1; // Convert to index (0, 1, 2)
-
-    if (x < 0 || x > 2 || y < 0 || y > 2) {
-        throw new Error("Invalid position delta for source position matrix.");
-    }
-
-    const index = y * 3 + x; // Calculate the index in the flat array
-    matrix[index] = status;
+    matrix.data[delta as number] = status;
 }
 
 
 export const getPositionWithDelta = (pos: RoomPosition, delta: PositionDelta): RoomPosition => {
+    const matrixPoint = indexToMatrixPoint(delta as number);
     return new RoomPosition(
-        pos.x + delta.x,
-        pos.y + delta.y,
+        pos.x + matrixPoint.x,
+        pos.y + matrixPoint.y,
         pos.roomName
     );
 }
 
 export const forEachMatrixSpot = (matrix: SourcePositionMatrix, callback: (delta: PositionDelta, status: SourceSpotStatus) => void): void => {
-    for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-            const delta: PositionDelta = { x: x as PositionDeltaValue, y: y as PositionDeltaValue };
-            const index = (y + 1) * 3 + (x + 1); // Convert delta to index
-            callback(delta, matrix[index]);
-        }
+    for (const index in matrix.data) {
+        callback(index as PositionDelta, matrix.data[index]);
     }
 };
