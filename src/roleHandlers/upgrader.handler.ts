@@ -6,6 +6,8 @@ import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus
 
 class UpgraderHandler extends RoleHandler {
     public static run(creep: Creep, state: GameState): GameState {
+        this.validateCreepMemory(creep, state);
+
         switch (creep.memory.destination?.type) {
             case "controller":
                 this.onControllerDestination(creep, state);
@@ -19,6 +21,42 @@ class UpgraderHandler extends RoleHandler {
         }
 
         return state;
+    }
+
+    private static validateCreepMemory(creep: Creep, state: GameState) {
+        if (!creep.memory.destination) {
+            return; // No destination set, nothing to validate
+        }
+
+        if (creep.memory.destination.type === "source" && !!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
+            setSpotStatus(
+                state.sourcesStates[creep.memory.previousDestination.id].spots,
+                creep.memory.previousDestination.sourceSpot,
+                SourceSpotStatus.EMPTY
+            );
+            delete creep.memory.previousDestination;
+        }
+
+        if (creep.memory.destination.type === "source" && !creep.store.getFreeCapacity(RESOURCE_ENERGY)) {
+            creep.memory.previousDestination = creep.memory.destination;
+
+            if (!creep.room.controller) {
+                console.log(`Creep ${creep.name} has no valid controller to upgrade.`);
+                delete creep.memory.destination;
+                return;
+            }
+
+            creep.memory.destination = {
+                id: creep.room.controller.id,
+                type: "controller"
+            };
+            return;
+        }
+
+        if (creep.memory.destination.type === "controller" && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+            delete creep.memory.destination; // Clear destination if no energy is available
+            return;
+        }
     }
 
     private static onFindNewSource(creep: Creep, state: GameState) {
@@ -60,21 +98,6 @@ class UpgraderHandler extends RoleHandler {
             return;
         }
 
-        if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-            creep.memory.previousDestination = creep.memory.destination;
-
-            if (!creep.room.controller) {
-                console.log(`Creep ${creep.name} has no valid controller to upgrade.`);
-                delete creep.memory.destination;
-                return;
-            }
-            creep.memory.destination = {
-                id: creep.room.controller.id,
-                type: "controller"
-            };
-            return;
-        }
-
         const source = getSourceById(creep.memory.destination.id);
         if (source === null) {
             console.log(`Source not found for creep: ${creep.name}`);
@@ -90,14 +113,6 @@ class UpgraderHandler extends RoleHandler {
     }
 
     private static onControllerDestination(creep: Creep, state: GameState) {
-        if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
-            setSpotStatus(
-                state.sourcesStates[creep.memory.previousDestination.id].spots,
-                creep.memory.previousDestination.sourceSpot,
-                SourceSpotStatus.EMPTY
-            );
-            delete creep.memory.previousDestination; // Clear previous destination if it exists
-        }
         if (creep.memory.destination === undefined) {
             if (!creep.room.controller) {
                 console.log(`Creep ${creep.name} has no valid controller to upgrade.`);
@@ -108,11 +123,6 @@ class UpgraderHandler extends RoleHandler {
                 id: creep.room.controller.id,
                 type: "controller"
             }
-        }
-
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-            delete creep.memory.destination;
-            return;
         }
 
         const controller = getControllerById(creep.memory.destination.id);
