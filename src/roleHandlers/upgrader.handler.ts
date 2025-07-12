@@ -1,14 +1,14 @@
-import { getSourceById, getSpawnById } from "utils/funcs/get_by_id";
-import { RoleHandler } from "./roleHandler.interface";
+import { getControllerById, getSourceById } from "utils/funcs/get_by_id";
+import { RoleHandler } from "./base.handler.interface";
 import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 
 
 
-class HarvesterHandler extends RoleHandler {
+class UpgraderHandler extends RoleHandler {
     public static run(creep: Creep, state: GameState): GameState {
         switch (creep.memory.destination?.type) {
-            case "spawn":
-                this.onSpawnDestination(creep, state);
+            case "controller":
+                this.onControllerDestination(creep, state);
                 break;
             case "source":
                 this.onSourceDestination(creep, state);
@@ -62,9 +62,15 @@ class HarvesterHandler extends RoleHandler {
 
         if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
             creep.memory.previousDestination = creep.memory.destination;
+
+            if (!creep.room.controller) {
+                console.log(`Creep ${creep.name} has no valid controller to upgrade.`);
+                delete creep.memory.destination;
+                return;
+            }
             creep.memory.destination = {
-                id: creep.memory.spawnId,
-                type: "spawn"
+                id: creep.room.controller.id,
+                type: "controller"
             };
             return;
         }
@@ -83,7 +89,7 @@ class HarvesterHandler extends RoleHandler {
         }
     }
 
-    private static onSpawnDestination(creep: Creep, state: GameState) {
+    private static onControllerDestination(creep: Creep, state: GameState) {
         if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
             setSpotStatus(
                 state.sourcesStates[creep.memory.previousDestination.id].spots,
@@ -93,9 +99,14 @@ class HarvesterHandler extends RoleHandler {
             delete creep.memory.previousDestination; // Clear previous destination if it exists
         }
         if (creep.memory.destination === undefined) {
+            if (!creep.room.controller) {
+                console.log(`Creep ${creep.name} has no valid controller to upgrade.`);
+                delete creep.memory.destination;
+                return;
+            }
             creep.memory.destination = {
-                id: creep.memory.spawnId,
-                type: "spawn"
+                id: creep.room.controller.id,
+                type: "controller"
             }
         }
 
@@ -104,14 +115,14 @@ class HarvesterHandler extends RoleHandler {
             return;
         }
 
-        const spawn = getSpawnById(creep.memory.destination.id);
-        if (!spawn) {
+        const controller = getControllerById(creep.memory.destination.id);
+        if (!controller) {
             console.log(`Spawn not found for creep: ${creep.name}`);
             return;
         }
 
-        if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
+        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(controller, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
         }
     }
 
@@ -131,4 +142,4 @@ class HarvesterHandler extends RoleHandler {
 
 
 
-export default HarvesterHandler;
+export default UpgraderHandler;

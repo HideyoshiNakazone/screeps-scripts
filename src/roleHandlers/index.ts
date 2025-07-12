@@ -1,8 +1,9 @@
-import { RoleHandler } from "./roleHandler.interface";
+import { RoleHandler } from "./base.handler.interface";
 
-import HarvesterHandler from "./harvesterHandler";
+import HarvesterHandler from "./harvester.handler";
+import UpgraderHandler from "./upgrader.handler";
 
 
 
 
-export { RoleHandler, HarvesterHandler };
+export { RoleHandler, HarvesterHandler, UpgraderHandler };

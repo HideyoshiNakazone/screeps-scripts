@@ -28,3 +28,19 @@ export const getSpawnById = (spawnId: string): StructureSpawn | null => {
 
     return spawn;
 }
+
+
+export const getControllerById = (controllerId: string): StructureController | null => {
+    if (!controllerId) {
+        console.log("getControllerById called with an empty or undefined controllerId.");
+        return null;
+    }
+
+    const controller = Game.getObjectById<StructureController>(controllerId);
+    if (!controller) {
+        console.log(`No controller found with ID: ${controllerId}`);
+        return null;
+    }
+
+    return controller;
+}

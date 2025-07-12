@@ -1,4 +1,4 @@
-import { HarvesterHandler, RoleHandler } from "roleHandlers";
+import { HarvesterHandler, RoleHandler, UpgraderHandler } from "roleHandlers";
 import { PositionDelta } from "./source";
 
 export type RoleDefinition = {
@@ -18,7 +18,7 @@ export const CreepRoles = {
     upgrader: {
         name: "upgrader",
         body: [WORK, CARRY, MOVE],
-        handler: HarvesterHandler,
+        handler: UpgraderHandler,
         priority: 2
     },
     builder: {
@@ -47,6 +47,11 @@ export type SourceDestination = {
     sourceSpot: PositionDelta; // Position delta for the source spot
 }
 
+export type ControllerDestination = {
+    id: string; // ID of the controller
+    type: "controller";
+}
 
-export type CreepDestination = SpawnDestination | SourceDestination;
+
+export type CreepDestination = SpawnDestination | SourceDestination | ControllerDestination;
 
