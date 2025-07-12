@@ -24,17 +24,17 @@ class UpgraderHandler extends RoleHandler {
     }
 
     private static validateCreepMemory(creep: Creep, state: GameState) {
-        if (!creep.memory.destination) {
-            return; // No destination set, nothing to validate
-        }
-
-        if (creep.memory.destination.type === "source" && !!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
+        if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
             setSpotStatus(
                 state.sourcesStates[creep.memory.previousDestination.id].spots,
                 creep.memory.previousDestination.sourceSpot,
                 SourceSpotStatus.EMPTY
             );
             delete creep.memory.previousDestination;
+        }
+
+        if (!creep.memory.destination) {
+            return; // No destination set, nothing to validate
         }
 
         if (creep.memory.destination.type === "source" && !creep.store.getFreeCapacity(RESOURCE_ENERGY)) {
