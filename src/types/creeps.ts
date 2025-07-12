@@ -52,6 +52,16 @@ export type ControllerDestination = {
     type: "controller";
 }
 
+export type ConstructionSiteDestination = {
+    id: string; // ID of the construction site
+    type: "constructionSite";
+}
 
-export type CreepDestination = SpawnDestination | SourceDestination | ControllerDestination;
+
+export type CreepDestination = (
+    SpawnDestination |
+    SourceDestination |
+    ControllerDestination |
+    ConstructionSiteDestination
+);
 

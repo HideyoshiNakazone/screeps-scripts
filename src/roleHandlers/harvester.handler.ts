@@ -6,6 +6,8 @@ import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus
 
 class HarvesterHandler extends RoleHandler {
     public static run(creep: Creep, state: GameState): GameState {
+        this.validateCreepMemory(creep, state);
+
         switch (creep.memory.destination?.type) {
             case "spawn":
                 this.onSpawnDestination(creep, state);
@@ -19,6 +21,35 @@ class HarvesterHandler extends RoleHandler {
         }
 
         return state;
+    }
+
+    private static validateCreepMemory(creep: Creep, state: GameState) {
+        if (!creep.memory.destination) {
+            return; // No destination set, nothing to validate
+        }
+
+        if (creep.memory.destination.type === "source" && !!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
+            setSpotStatus(
+                state.sourcesStates[creep.memory.previousDestination.id].spots,
+                creep.memory.previousDestination.sourceSpot,
+                SourceSpotStatus.EMPTY
+            );
+            delete creep.memory.previousDestination;
+        }
+
+        if (creep.memory.destination.type === "source" && !creep.store.getFreeCapacity(RESOURCE_ENERGY)) {
+            creep.memory.previousDestination = creep.memory.destination;
+            creep.memory.destination = {
+                id: creep.memory.spawnId,
+                type: "spawn"
+            };
+            return;
+        }
+
+        if (creep.memory.destination.type === "spawn" && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+            delete creep.memory.destination; // Clear destination if no energy is available
+            return;
+        }
     }
 
     private static onFindNewSource(creep: Creep, state: GameState) {
@@ -60,15 +91,6 @@ class HarvesterHandler extends RoleHandler {
             return;
         }
 
-        if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-            creep.memory.previousDestination = creep.memory.destination;
-            creep.memory.destination = {
-                id: creep.memory.spawnId,
-                type: "spawn"
-            };
-            return;
-        }
-
         const source = getSourceById(creep.memory.destination.id);
         if (source === null) {
             console.log(`Source not found for creep: ${creep.name}`);
@@ -84,24 +106,11 @@ class HarvesterHandler extends RoleHandler {
     }
 
     private static onSpawnDestination(creep: Creep, state: GameState) {
-        if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
-            setSpotStatus(
-                state.sourcesStates[creep.memory.previousDestination.id].spots,
-                creep.memory.previousDestination.sourceSpot,
-                SourceSpotStatus.EMPTY
-            );
-            delete creep.memory.previousDestination; // Clear previous destination if it exists
-        }
         if (creep.memory.destination === undefined) {
             creep.memory.destination = {
                 id: creep.memory.spawnId,
                 type: "spawn"
             }
-        }
-
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-            delete creep.memory.destination;
-            return;
         }
 
         const spawn = getSpawnById(creep.memory.destination.id);
