@@ -1,10 +1,22 @@
 import { getSourceById, getSpawnById } from "utils/funcs/get_by_id";
 import { RoleHandler } from "./base.handler.interface";
 import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
+import { SourceDestination } from "types/creeps";
 
 
 
 class HarvesterHandler extends RoleHandler {
+    public static destroy(creepMemory: CreepMemory, state: GameState): void {
+        if (creepMemory.destination?.type === "source") {
+            this.releaseSourceSpot(creepMemory.destination, state);
+            delete creepMemory.destination; // Clear destination after releasing the spot
+        }
+        if (creepMemory.previousDestination?.type === "source") {
+            this.releaseSourceSpot(creepMemory.previousDestination, state);
+            delete creepMemory.previousDestination; // Clear previous destination after releasing the spot
+        }
+    }
+
     public static run(creep: Creep, state: GameState): GameState {
         this.validateCreepMemory(creep, state);
 
@@ -24,7 +36,7 @@ class HarvesterHandler extends RoleHandler {
     }
 
     private static validateCreepMemory(creep: Creep, state: GameState) {
-        if (!!creep.memory.previousDestination && creep.memory.previousDestination.type === "source") {
+        if (creep.memory.previousDestination?.type === "source") {
             setSpotStatus(
                 state.sourcesStates[creep.memory.previousDestination.id].spots,
                 creep.memory.previousDestination.sourceSpot,
@@ -133,6 +145,24 @@ class HarvesterHandler extends RoleHandler {
             .sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b));
 
         return sources as Source[];
+    }
+
+    private static releaseSourceSpot(destination: SourceDestination, state: GameState) {
+        if (!destination || destination.type !== "source") {
+            return; // Not a source destination, nothing to release
+        }
+
+        const sourceState = state.sourcesStates[destination.id];
+        if (!sourceState) {
+            console.log(`Source state not found for ID: ${destination.id}`);
+            return;
+        }
+
+        setSpotStatus(
+            sourceState.spots,
+            destination.sourceSpot,
+            SourceSpotStatus.EMPTY
+        );
     }
 }
 

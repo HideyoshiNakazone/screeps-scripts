@@ -5,6 +5,8 @@ import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus
 
 
 class UpgraderHandler extends RoleHandler {
+    public static destroy(creepMemory: CreepMemory, state: GameState): void {}
+
     public static run(creep: Creep, state: GameState): GameState {
         this.validateCreepMemory(creep, state);
 

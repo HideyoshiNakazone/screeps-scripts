@@ -14,7 +14,12 @@ class SpawnHandler {
     public run(state: GameState): GameState {
         this.updateSpawnState(state);
 
-        for(const name in Game.creeps) {
+        for(const name in Memory.creeps) {
+            if (!Game.creeps[name]) {
+                const roleDefinition = CreepRoles[Memory.creeps[name].role as CreepRole];
+                roleDefinition.handler.destroy(Memory.creeps[name], state);
+                delete Memory.creeps[name]; // Clean up memory for dead creeps
+            }
             const creep = Game.creeps[name];
 
             const roleDefinition = CreepRoles[creep.memory.role as CreepRole];
