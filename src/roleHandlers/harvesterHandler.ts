@@ -1,6 +1,6 @@
 import { getSourceById, getSpawnById } from "utils/funcs/get_by_id";
 import { RoleHandler } from "./roleHandler.interface";
-import { forEachMatrixSpot, getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
+import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 
 
 
@@ -79,7 +79,7 @@ class HarvesterHandler extends RoleHandler {
             const sourceSpotPosition = getPositionWithDelta(
                 source.pos, creep.memory.destination.sourceSpot
             )
-            creep.moveTo(sourceSpotPosition, { reusePath: 0, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
+            creep.moveTo(sourceSpotPosition, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
         }
     }
 
@@ -111,7 +111,7 @@ class HarvesterHandler extends RoleHandler {
         }
 
         if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn, { reusePath: 0, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
+            creep.moveTo(spawn, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
         }
     }
 
