@@ -5,7 +5,16 @@ import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus
 
 
 class UpgraderHandler extends RoleHandler {
-    public static destroy(creepMemory: CreepMemory, state: GameState): void {}
+    public static destroy(creepMemory: CreepMemory, state: GameState): void {
+        if (creepMemory.destination?.type === "source") {
+            this.releaseSourceSpot(creepMemory.destination, state);
+            delete creepMemory.destination; // Clear destination after releasing the spot
+        }
+        if (creepMemory.previousDestination?.type === "source") {
+            this.releaseSourceSpot(creepMemory.previousDestination, state);
+            delete creepMemory.previousDestination; // Clear previous destination after releasing the spot
+        }
+    }
 
     public static run(creep: Creep, state: GameState): GameState {
         this.validateCreepMemory(creep, state);
@@ -147,6 +156,24 @@ class UpgraderHandler extends RoleHandler {
             .sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b));
 
         return sources as Source[];
+    }
+
+    private static releaseSourceSpot(destination: SourceDestination, state: GameState) {
+        if (!destination || destination.type !== "source") {
+            return; // Not a source destination, nothing to release
+        }
+
+        const sourceState = state.sourcesStates[destination.id];
+        if (!sourceState) {
+            console.log(`Source state not found for ID: ${destination.id}`);
+            return;
+        }
+
+        setSpotStatus(
+            sourceState.spots,
+            destination.sourceSpot,
+            SourceSpotStatus.EMPTY
+        );
     }
 }
 

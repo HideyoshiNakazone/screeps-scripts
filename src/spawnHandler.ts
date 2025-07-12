@@ -16,9 +16,13 @@ class SpawnHandler {
 
         for(const name in Memory.creeps) {
             if (!Game.creeps[name]) {
+                console.log(`Creep ${name} is dead, cleaning up memory.`);
+
                 const roleDefinition = CreepRoles[Memory.creeps[name].role as CreepRole];
                 roleDefinition.handler.destroy(Memory.creeps[name], state);
                 delete Memory.creeps[name]; // Clean up memory for dead creeps
+
+                continue; // Skip to the next creep
             }
             const creep = Game.creeps[name];
 
