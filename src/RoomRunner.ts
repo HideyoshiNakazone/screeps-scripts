@@ -4,15 +4,9 @@ import { createSourcePositionMatrix, forEachMatrixSpot, getPositionWithDelta, se
 import { checkPositionWalkable } from "utils/funcs/check_position";
 import { get_role_const as get_role_cost } from "utils/funcs/get_role_const";
 
-class SpawnHandler {
-    constructor(private spawn: StructureSpawn) {}
-
-    public get spawnName(): string {
-        return this.spawn.name;
-    }
-
-    public run(state: GameState): GameState {
-        this.updateSpawnState(state);
+class RoomRunner {
+    public static run(room: Room, state: GameState): GameState {
+        this.updateSpawnState(room, state);
 
         for(const name in Memory.creeps) {
             if (!Game.creeps[name]) {
@@ -35,13 +29,15 @@ class SpawnHandler {
             state = roleDefinition.handler.run(creep, state);
         }
 
-        this.validateSpawnState();
-
+        for (const spawn of room.find(FIND_MY_SPAWNS)) {
+            this.validateSpawnState(spawn, state);
+        }
+        
         return state;
     }
 
-    private updateSpawnState(state: GameState) {
-        const sources = this.spawn.room.find(FIND_SOURCES);
+    private static updateSpawnState(room: Room, state: GameState) {
+        const sources = room.find(FIND_SOURCES);
         if (!state.sourcesStates) {
             state.sourcesStates = {};
             state.maxHarvesters = 0
@@ -71,8 +67,8 @@ class SpawnHandler {
         }
     }
 
-    private validateSpawnState() {
-        if (this.spawn.spawning) {
+    private static validateSpawnState(spawn: StructureSpawn, state: GameState) {
+        if (spawn.spawning) {
             // console.log(`Spawn ${this.spawn.name} is currently spawning a creep.`);
             return;
         }
@@ -84,38 +80,36 @@ class SpawnHandler {
         }
 
         const totalCreeps = Object.values(Game.creeps).length;
-        if (totalCreeps >= DEFAULT_GAME_CONFIG.maxCreeps) {
-            // console.log(`Spawn ${this.spawn.name} cannot spawn more creeps, limit reached.`);
+        if (totalCreeps >= state.maxHarvesters) {
             return;
         }
 
         const rolesToSpawn = this.sortCreepRolesByPriority(creepRequisition);
 
         for (const role of rolesToSpawn) {
-            if (this.spawn.store[RESOURCE_ENERGY] < get_role_cost(role)) {
-                // console.log(`Spawn ${this.spawn.name} does not have enough energy to spawn a ${role.name}.`);
+            if (spawn.store[RESOURCE_ENERGY] < get_role_cost(role)) {
                 continue;
             }
 
             const newName = `${role.name}_${Game.time}`;
-            const spawnResult = this.spawn.spawnCreep(role.body, newName, {
+            const spawnResult = spawn.spawnCreep(role.body, newName, {
                 memory: {
                     role: role.name,
-                    room: this.spawn.room.name,
-                    spawnId: this.spawn.id,
+                    room: spawn.room.name,
+                    spawnId: spawn.id,
                     working: false
                 }
             });
             if (spawnResult === OK) {
-                console.log(`Spawn ${this.spawn.name} successfully spawned a new ${role.name}: ${newName}.`);
+                console.log(`Spawn ${spawn.name} successfully spawned a new ${role.name}: ${newName}.`);
                 return; // Exit after spawning one creep
             } else {
-                console.error(`Spawn ${this.spawn.name} failed to spawn a new ${role.name}: ${spawnResult}`);
+                console.error(`Spawn ${spawn.name} failed to spawn a new ${role.name}: ${spawnResult}`);
             }
         }
     }
 
-    private checksNeedsCreeps(): CreepRequisition {
+    private static checksNeedsCreeps(): CreepRequisition {
         const creepCounts: Record<string, number> = {};
         for (const creep of Object.values(Game.creeps)) {
             const role = creep.memory.role;
@@ -143,7 +137,7 @@ class SpawnHandler {
         return requisition;
     }
 
-    private sortCreepRolesByPriority(requisition: CreepRequisition): RoleDefinition[] {
+    private static sortCreepRolesByPriority(requisition: CreepRequisition): RoleDefinition[] {
         return Object.keys(requisition)
             .filter(role => requisition[role as CreepRole] > 0)
             .map(role => CreepRoles[role as CreepRole])
@@ -151,4 +145,4 @@ class SpawnHandler {
     }
 }
 
-export default SpawnHandler;
+export default RoomRunner;

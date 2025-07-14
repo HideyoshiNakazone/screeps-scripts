@@ -1,6 +1,6 @@
 import { CreepDestination } from "types/creeps";
 import { SourcePositionMatrix, SourceSpotStatus } from "./types/source";
-import SpawnHandler from "spawnHandler";
+import RoomRunner from "RoomRunner";
 
 declare global {
     /*
@@ -26,7 +26,7 @@ declare global {
     interface Memory {
         uuid: number;
         log: any;
-        spawnStates: { [name: string]: GameState };
+        roomStateRegistry: { [name: string]: GameState };
     }
 
     interface CreepMemory {
@@ -48,13 +48,11 @@ declare global {
 
 
 export const loop = () => {
-    Memory.spawnStates = Memory.spawnStates || {};
+    Memory.roomStateRegistry = Memory.roomStateRegistry || {};
 
-    for (const spawnName of Object.keys(Game.spawns)) {
-        const spawnState = Memory.spawnStates[spawnName] || {};
-
-        const spawnHandler = new SpawnHandler(Game.spawns[spawnName]);
-
-        Memory.spawnStates[spawnName] = spawnHandler.run(spawnState);
+    for (const roomName of Object.keys(Game.rooms)) {
+        Memory.roomStateRegistry[roomName] = RoomRunner.run(
+            Game.rooms[roomName], Memory.roomStateRegistry[roomName] || {}
+        );
     }
 };
