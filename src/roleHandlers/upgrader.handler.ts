@@ -1,5 +1,5 @@
-import { getControllerById, getSourceById } from "utils/funcs/get_by_id";
-import { RoleHandler } from "./base.handler.interface";
+import { getControllerById, getSourceById } from "utils/funcs/getById";
+import { RoleHandler } from "./BaseHandler.interface";
 import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 
 

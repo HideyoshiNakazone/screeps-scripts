@@ -1,5 +1,5 @@
-import { getSourceById, getSpawnById } from "utils/funcs/get_by_id";
-import { RoleHandler } from "./base.handler.interface";
+import { getSourceById, getSpawnById } from "utils/funcs/getById";
+import { RoleHandler } from "./BaseHandler.interface";
 import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 import { SourceDestination } from "types/creeps";
 

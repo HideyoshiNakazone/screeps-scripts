@@ -5,9 +5,6 @@ import { CreepRequisition } from "./creeps";
  * Used to manage the overall game state and ensure proper role distribution.
  */
 export type GameConfig = {
-    /** The maximum number of creeps allowed in the game. */
-    maxCreeps: number;
-
     /**
      * The minimum number of creeps required for each role.
      * Creeps will be spawned to meet these minimums before allocating new roles.
@@ -22,7 +19,6 @@ export type GameConfig = {
  * @type {GameConfig}
  */
 export const DEFAULT_GAME_CONFIG: GameConfig = {
-    maxCreeps: 10,
     minCreepsPerRole: {
         harvester: 3,
         upgrader: 7,

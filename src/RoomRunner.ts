@@ -1,8 +1,8 @@
 import { CreepRequisition, CreepRole, CreepRoles, RoleDefinition } from "types/creeps";
 import { DEFAULT_GAME_CONFIG } from "types/gameConfig";
 import { createSourcePositionMatrix, forEachMatrixSpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
-import { checkPositionWalkable } from "utils/funcs/check_position";
-import { get_role_const as get_role_cost } from "utils/funcs/get_role_const";
+import { checkPositionWalkable } from "utils/funcs/checkPosition";
+import { get_role_cost as get_role_cost } from "utils/funcs/getRoleCost";
 
 class RoomRunner {
     public static run(room: Room, state: GameState): GameState {
