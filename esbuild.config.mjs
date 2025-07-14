@@ -12,4 +12,7 @@ build({
   logLevel: 'info',
   minify: false,
   keepNames: true, // optional: keeps function/class names
+  banner: {
+    js: `// Vitor Hideyoshi <vitor.h.n.batista@gmail.com> - ${new Date().toISOString()}\n`
+  },
 }).catch(() => process.exit(1));
