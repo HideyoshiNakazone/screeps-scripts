@@ -8,7 +8,7 @@ class RoomRunner {
     public static run(room: Room, state: GameState): GameState {
         this.updateSpawnState(room, state);
 
-        for(const name in Memory.creeps) {
+        for(const name in this.getRoomCreeps(room)) {
             if (!Game.creeps[name]) {
                 console.log(`Creep ${name} is dead, cleaning up memory.`);
 
@@ -32,8 +32,17 @@ class RoomRunner {
         for (const spawn of room.find(FIND_MY_SPAWNS)) {
             this.validateSpawnState(spawn, state);
         }
-        
+
         return state;
+    }
+
+    private static getRoomCreeps(room: Room): Record<string, CreepMemory> {
+        return Object.keys(Memory.creeps)
+            .filter(name => Memory.creeps[name].room === room.name)
+            .reduce((creeps: Record<string, CreepMemory>, creepName: string) => {
+                creeps[creepName] = Memory.creeps[creepName];
+                return creeps;
+            }, {});
     }
 
     private static updateSpawnState(room: Room, state: GameState) {
@@ -73,7 +82,7 @@ class RoomRunner {
             return;
         }
 
-        const creepRequisition = this.checksNeedsCreeps();
+        const creepRequisition = this.checksNeedsCreeps(spawn.room);
         if (Object.values(creepRequisition).every(count => count <= 0)) {
             // console.log(`Spawn ${this.spawn.name} has no creep needs.`);
             return;
@@ -109,10 +118,10 @@ class RoomRunner {
         }
     }
 
-    private static checksNeedsCreeps(): CreepRequisition {
+    private static checksNeedsCreeps(room: Room): CreepRequisition {
         const creepCounts: Record<string, number> = {};
-        for (const creep of Object.values(Game.creeps)) {
-            const role = creep.memory.role;
+        for (const creepMemory of Object.values(this.getRoomCreeps(room))) {
+            const role = creepMemory.role;
             creepCounts[role] = (creepCounts[role] || 0) + 1;
         }
 
