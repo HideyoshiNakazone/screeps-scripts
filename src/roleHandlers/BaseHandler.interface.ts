@@ -1,4 +1,12 @@
 export abstract class RoleHandler {
-    static destroy(creepMemory: CreepMemory, state: GameState): void {};
-    static run(creep: Creep, state: GameState): GameState {};
+    public static destroy(_creepMemory: CreepMemory, _state: GameState): void {
+        // Default implementation does nothing
+        // Subclasses should override this method
+    }
+
+    public static run(_creep: Creep, state: GameState): GameState {
+        // Default implementation returns state unchanged
+        // Subclasses should override this method
+        return state;
+    }
 }

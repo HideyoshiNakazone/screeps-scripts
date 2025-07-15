@@ -1,6 +1,6 @@
 import { CreepDestination } from "types/creeps";
-import { SourcePositionMatrix, SourceSpotStatus } from "./types/source";
 import RoomRunner from "RoomRunner";
+import { PositionMatrix } from "utils/positions";
 
 declare global {
     /*
@@ -13,7 +13,7 @@ declare global {
   */
     interface SourceState {
         id: string;
-        spots: SourcePositionMatrix;
+        spots: PositionMatrix;
         pos: RoomPosition;
     }
 
@@ -46,13 +46,13 @@ declare global {
     }
 }
 
-
 export const loop = () => {
     Memory.roomStateRegistry = Memory.roomStateRegistry || {};
 
     for (const roomName of Object.keys(Game.rooms)) {
         Memory.roomStateRegistry[roomName] = RoomRunner.run(
-            Game.rooms[roomName], Memory.roomStateRegistry[roomName] || {}
+            Game.rooms[roomName],
+            Memory.roomStateRegistry[roomName] || {}
         );
     }
 };

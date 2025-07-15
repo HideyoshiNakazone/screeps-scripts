@@ -1,14 +1,20 @@
 import { CreepRequisition, CreepRole, CreepRoles, RoleDefinition } from "types/creeps";
 import { DEFAULT_GAME_CONFIG } from "types/gameConfig";
-import { createSourcePositionMatrix, forEachMatrixSpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 import { checkPositionWalkable } from "utils/funcs/checkPosition";
 import { get_role_cost as get_role_cost } from "utils/funcs/getRoleCost";
+import {
+    createSourcePositionMatrix,
+    forEachMatrixSpot,
+    getPositionWithDelta,
+    PositionSpotStatus,
+    setSpotStatus
+} from "utils/positions";
 
 class RoomRunner {
     public static run(room: Room, state: GameState): GameState {
         this.updateSpawnState(room, state);
 
-        for(const name in this.getRoomCreeps(room)) {
+        for (const name in this.getRoomCreeps(room)) {
             if (!Game.creeps[name]) {
                 console.log(`Creep ${name} is dead, cleaning up memory.`);
 
@@ -49,29 +55,29 @@ class RoomRunner {
         const sources = room.find(FIND_SOURCES);
         if (!state.sourcesStates) {
             state.sourcesStates = {};
-            state.maxHarvesters = 0
+            state.maxHarvesters = 0;
         }
         for (const source of sources) {
             const sourceId = source.id.toString();
 
             if (!state.sourcesStates[sourceId]) {
                 state.sourcesStates[sourceId] = {
-                    "id": sourceId,
-                    "pos": source.pos,
-                    "spots": createSourcePositionMatrix(),
+                    id: sourceId,
+                    pos: source.pos,
+                    spots: createSourcePositionMatrix()
                 };
                 forEachMatrixSpot(state.sourcesStates[sourceId].spots, (delta, status) => {
-                    if (status !== SourceSpotStatus.UNKNOWN) {
+                    if (status !== PositionSpotStatus.UNKNOWN) {
                         return; // Skip known spots
                     }
                     const pos = getPositionWithDelta(source.pos, delta);
                     if (checkPositionWalkable(pos)) {
-                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.EMPTY);
+                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, PositionSpotStatus.EMPTY);
                         state.maxHarvesters = state.maxHarvesters + 1;
                     } else {
-                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, SourceSpotStatus.INVALID);
+                        setSpotStatus(state.sourcesStates[sourceId].spots, delta, PositionSpotStatus.INVALID);
                     }
-                })
+                });
             }
         }
     }

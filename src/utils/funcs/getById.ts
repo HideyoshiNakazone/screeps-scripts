@@ -11,8 +11,7 @@ export const getSourceById = (sourceId: string): Source | null => {
     }
 
     return source;
-}
-
+};
 
 export const getSpawnById = (spawnId: string): StructureSpawn | null => {
     if (!spawnId) {
@@ -27,8 +26,7 @@ export const getSpawnById = (spawnId: string): StructureSpawn | null => {
     }
 
     return spawn;
-}
-
+};
 
 export const getControllerById = (controllerId: string): StructureController | null => {
     if (!controllerId) {
@@ -43,4 +41,4 @@ export const getControllerById = (controllerId: string): StructureController | n
     }
 
     return controller;
-}
+};

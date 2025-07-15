@@ -1,9 +1,7 @@
 import { getSourceById, getSpawnById } from "utils/funcs/getById";
 import { RoleHandler } from "./BaseHandler.interface";
-import { getNextEmptySpot, getPositionWithDelta, setSpotStatus, SourceSpotStatus } from "types/source";
 import { SourceDestination } from "types/creeps";
-
-
+import { getNextEmptySpot, getPositionWithDelta, PositionSpotStatus, setSpotStatus } from "utils/positions";
 
 class HarvesterHandler extends RoleHandler {
     public static destroy(creepMemory: CreepMemory, state: GameState): void {
@@ -40,7 +38,7 @@ class HarvesterHandler extends RoleHandler {
             setSpotStatus(
                 state.sourcesStates[creep.memory.previousDestination.id].spots,
                 creep.memory.previousDestination.sourceSpot,
-                SourceSpotStatus.EMPTY
+                PositionSpotStatus.EMPTY
             );
             delete creep.memory.previousDestination;
         }
@@ -80,23 +78,19 @@ class HarvesterHandler extends RoleHandler {
                 continue; // No empty spots available, skip to next source
             }
 
-            setSpotStatus(
-                sourceState.spots,
-                emptySpot,
-                SourceSpotStatus.OCCUPIED
-            );
+            setSpotStatus(sourceState.spots, emptySpot, PositionSpotStatus.OCCUPIED);
             creep.memory.destination = {
                 id: source.id,
                 type: "source",
                 sourceSpot: emptySpot
             };
-            return
+            return;
         }
 
         console.log(`Creep ${creep.name} could not find a valid source.`);
     }
 
-    private static onSourceDestination(creep: Creep, state: GameState) {
+    private static onSourceDestination(creep: Creep, _state: GameState) {
         if (!creep.memory.destination || creep.memory.destination.type !== "source") {
             console.log(`Creep ${creep.name} has no valid destination set.`);
             delete creep.memory.destination;
@@ -110,19 +104,20 @@ class HarvesterHandler extends RoleHandler {
         }
 
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-            const sourceSpotPosition = getPositionWithDelta(
-                source.pos, creep.memory.destination.sourceSpot
-            )
-            creep.moveTo(sourceSpotPosition, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
+            const sourceSpotPosition = getPositionWithDelta(source.pos, creep.memory.destination.sourceSpot);
+            creep.moveTo(sourceSpotPosition, {
+                reusePath: 10,
+                visualizePathStyle: { stroke: "#ffffff", lineStyle: "dashed", strokeWidth: 0.1 }
+            });
         }
     }
 
-    private static onSpawnDestination(creep: Creep, state: GameState) {
+    private static onSpawnDestination(creep: Creep, _state: GameState) {
         if (creep.memory.destination === undefined) {
             creep.memory.destination = {
                 id: creep.memory.spawnId,
                 type: "spawn"
-            }
+            };
         }
 
         const spawn = getSpawnById(creep.memory.destination.id);
@@ -132,11 +127,12 @@ class HarvesterHandler extends RoleHandler {
         }
 
         if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn, { reusePath: 10, visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed', strokeWidth: 0.1 } });
+            creep.moveTo(spawn, {
+                reusePath: 10,
+                visualizePathStyle: { stroke: "#ffffff", lineStyle: "dashed", strokeWidth: 0.1 }
+            });
         }
     }
-
-
 
     private static findClosestSource(creep: Creep, state: GameState): Source[] {
         const sources = Object.keys(state.sourcesStates)
@@ -158,16 +154,8 @@ class HarvesterHandler extends RoleHandler {
             return;
         }
 
-        setSpotStatus(
-            sourceState.spots,
-            destination.sourceSpot,
-            SourceSpotStatus.EMPTY
-        );
+        setSpotStatus(sourceState.spots, destination.sourceSpot, PositionSpotStatus.EMPTY);
     }
 }
-
-
-
-
 
 export default HarvesterHandler;
