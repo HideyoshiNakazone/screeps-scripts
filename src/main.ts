@@ -50,9 +50,14 @@ export const loop = () => {
     Memory.roomStateRegistry = Memory.roomStateRegistry || {};
 
     for (const roomName of Object.keys(Game.rooms)) {
-        Memory.roomStateRegistry[roomName] = RoomRunner.run(
-            Game.rooms[roomName],
-            Memory.roomStateRegistry[roomName] || {}
-        );
+        try {
+            Memory.roomStateRegistry[roomName] = RoomRunner.run(
+                Game.rooms[roomName],
+                Memory.roomStateRegistry[roomName] || {}
+            );
+        } catch (error) {
+            console.log(`Error running RoomRunner for room ${roomName}:`, error);
+            delete Memory.roomStateRegistry[roomName]
+        }
     }
 };
