@@ -18,13 +18,7 @@ class RequisitionsManager {
         }
 
         for (const spawn of room.find(FIND_MY_SPAWNS)) {
-            const requestResult = this.fulfillSpawnRequisition(spawn, creepRequisition);
-
-            if (requestResult) {
-                console.log(`Spawn ${spawn.name} has fulfilled a creep requisition.`);
-            } else {
-                console.log(`Spawn ${spawn.name} could not fulfill any creep requisition.`);
-            }
+            this.fulfillSpawnRequisition(spawn, creepRequisition);
         }
 
         return state;
