@@ -4,3 +4,4 @@
 
 # Screeps Config
 .screeps.yml
+docker/.env

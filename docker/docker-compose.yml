@@ -1,0 +1,38 @@
+services:
+  mongo:
+    container_name: screeps-mongo
+    image: mongo:4.4.18
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  redis:
+    container_name: screeps-redis
+    image: redis:7
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  screeps:
+    container_name: screeps-server
+    image: ghcr.io/jomik/screeps-server:edge
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - 21025:21025
+    environment:
+      MONGO_HOST: mongo
+      REDIS_HOST: redis
+      STEAM_KEY: ${STEAM_KEY:?"Missing steam key"}
+    volumes:
+      - ./config.yml:/screeps/config.yml
+      - screeps-data:/data
+      - screeps-mods:/screeps/mods
+    restart: unless-stopped
+
+volumes:
+  screeps-data:
+  screeps-mods:
+  redis-data:
+  mongo-data:
